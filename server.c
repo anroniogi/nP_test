@@ -1,10 +1,16 @@
 #include "headerFiles.h"
 
-#define MAXLINE 1024 
+#define MAXLINE 1024
 #define PORTNUM 50000
 #define SOCK_SETSIZE 1021
 
 #define MAX_CLIENT 100
+
+//접속종료시 사용자 배열에서 삭제
+void Delete(int *ar, int idx)
+{
+    memmove(ar + idx, ar + idx + 1, strlen(ar) - idx);
+}
 
 int main(int argc, char **argv)
 {
@@ -28,7 +34,7 @@ int main(int argc, char **argv)
     {
         perror("socket error");
         return 1;
-    }   
+    }
     memset((void *)&server_addr, 0x00, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -38,12 +44,12 @@ int main(int argc, char **argv)
     {
         perror("bind error");
         return 1;
-    }   
+    }
     if(listen(listen_fd, 5) == -1)
     {
         perror("listen error");
         return 1;
-    }   
+    }
 
     FD_ZERO(&readfds);
     FD_SET(listen_fd, &readfds);
@@ -84,18 +90,28 @@ int main(int argc, char **argv)
                     printf("close\n");
                     close(sockfd);
                     FD_CLR(sockfd, &readfds);
+                    for(int j=0; i<clnt_num; ++j){
+                        if(list[j]==i){
+                            Delete(list, j);
+                        }
+                    }
+                    clnt_num--;
                 }
                 else
                 {
                     buf[readn] = '\0';
                     if(clnt_num != 1){
                         for(int j=0; j<clnt_num; j++){
-                            write(list[j], buf, strlen(buf));
+                            if(i!=list[j]){
+                                write(list[j], buf, strlen(buf));
+                            }
                         }
                     }
-                    else write(list[0], buf, strlen(buf));
-                    
-                    
+                    else {
+                        write(list[0], buf, strlen(buf));
+                    }
+
+
                 }
                 if (--fd_num <= 0)
                     break;

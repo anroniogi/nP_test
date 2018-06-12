@@ -18,6 +18,16 @@ void *t_function(void *data){
 
 }
 
+char* concat(const char *s1, const char *s2)
+{
+    const size_t len1 = strlen(s1);
+    const size_t len2 = strlen(s2);
+    char *result = (char*)malloc(len1 + len2 + 1);//+1 for the zero-terminator
+                                           //in real code you would check for errors in malloc here
+    memcpy(result, s1, len1);
+    memcpy(result + len1, s2, len2 + 1);//+1 to copy the null-terminator
+    return result;
+}
 
 int main (int argc, char* argv[])
 {
@@ -34,6 +44,7 @@ int main (int argc, char* argv[])
     char* ptr = buffer;
     char buffer_rcv[SIZE];
     char* ptr_rcv = buffer_rcv;
+    char* msg;
 
     struct sockaddr_in servAddr;
 
@@ -51,6 +62,9 @@ int main (int argc, char* argv[])
     servName = argv[1];
     servPort = atoi(argv[2]);
     string = argv[3];
+
+    string = concat(string, " : ");
+
     //
     memset(&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
@@ -83,7 +97,9 @@ int main (int argc, char* argv[])
         if(strcmp(ptr, "quit")==0)
             break;
 
-        test = send(s, ptr, SIZE, 0);
+        msg = concat(string, ptr);
+
+        test = send(s, msg, SIZE, 0);
 //        n = recv(s, ptr_rcv, SIZE, 0);
 //        printf("\nEchoed string received: ");
 //        fputs(buffer_rcv, stdout);
