@@ -26,9 +26,11 @@ int main(int argc, char **argv)
 
     struct sockaddr_in server_addr, client_addr;
 
-    //연결된 소켓 배열
+    //연결된 소켓 배열 - 채팅방
     int list[MAX_CLIENT];
-    int clnt_num=0;
+    //int list2[MAX_CLIENT];
+    int clnt_num1=0;
+    int clnt_num2=0;
 
     if((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
@@ -69,14 +71,24 @@ int main(int argc, char **argv)
                     (struct sockaddr *)&client_addr, &addrlen);
 
             //상규 추가
-            list[clnt_num] = client_fd;
-            clnt_num++;
+            list[clnt_num1] = client_fd;
+            clnt_num1++;
 
             FD_SET(client_fd,&readfds);
 
             if (client_fd > maxfd)
                 maxfd = client_fd;
             printf("Accept OK\n");
+
+            //채팅방 선택
+            {
+                write(client_fd, "choice_chatting_room_number", 1024);
+                read(client_fd, buf, MAXLINE-1);
+                printf("%c\n", buf);
+
+
+            }
+
             continue;
         }
 
@@ -90,18 +102,18 @@ int main(int argc, char **argv)
                     printf("close\n");
                     close(sockfd);
                     FD_CLR(sockfd, &readfds);
-                    for(int j=0; i<clnt_num; ++j){
+                    for(int j=0; i<clnt_num1; ++j){
                         if(list[j]==i){
                             Delete(list, j);
                         }
                     }
-                    clnt_num--;
+                    clnt_num1--;
                 }
                 else
                 {
                     buf[readn] = '\0';
-                    if(clnt_num != 1){
-                        for(int j=0; j<clnt_num; j++){
+                    if(clnt_num1 != 1){
+                        for(int j=0; j<clnt_num1; j++){
                             if(i!=list[j]){
                                 write(list[j], buf, strlen(buf));
                             }

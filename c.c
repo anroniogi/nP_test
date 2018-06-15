@@ -13,8 +13,24 @@ void *t_function(void *data){
          n = recv(s, ptr_rcv, SIZE, 0);
          buffer_rcv[n] = '\0';
          buffer_rcv[n+1] = '\n';
-         printf("\nEchoed string received: %s \n 보낼 문자열을 입력하세요 :", ptr_rcv);
+         printf("\n%s \n", ptr_rcv);
+         printf("보낼 문자열을 입력하세요 :");
     }
+
+}
+
+void choice_room(int s){
+    int n;
+    char buffer_rcv[SIZE];
+    char* ptr_rcv = buffer_rcv;
+
+    printf("입장할 채팅방을 선택하세요\n")
+
+    n = recv(s, ptr_rcv, SIZE, 0);
+    buffer_rcv[n] = '\0';
+
+    printf("%s\n", buffer_rcv);
+
 
 }
 
@@ -82,6 +98,11 @@ int main (int argc, char* argv[])
         perror("ERROR : connection failed");
         exit(1);
     }
+
+    //채팅방 선택
+    choice_room(s);
+
+
     //상규 추가
     thr_id = pthread_create(&pthread, NULL, t_function, (void *)&s);
     if(thr_id < 0){
@@ -100,6 +121,7 @@ int main (int argc, char* argv[])
         msg = concat(string, ptr);
 
         test = send(s, msg, SIZE, 0);
+        printf("보낼 문자열을 입력하세요 : ");
 //        n = recv(s, ptr_rcv, SIZE, 0);
 //        printf("\nEchoed string received: ");
 //        fputs(buffer_rcv, stdout);
