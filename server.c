@@ -27,10 +27,19 @@ int main(int argc, char **argv)
     struct sockaddr_in server_addr, client_addr;
 
     //연결된 소켓 배열 - 채팅방
-    int list[MAX_CLIENT];
-    //int list2[MAX_CLIENT];
+    //int list[MAX_CLIENT];
+    int room1[MAX_CLIENT];
+    int room2[MAX_CLIENT];
+    int room3[MAX_CLIENT];
+    int room4[MAX_CLIENT];
+    int room5[MAX_CLIENT];
+
     int clnt_num1=0;
     int clnt_num2=0;
+    int clnt_num3=0;
+    int clnt_num4=0;
+    int clnt_num5=0;
+
 
     if((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
@@ -64,15 +73,14 @@ int main(int argc, char **argv)
         fd_num = select(maxfd + 1 , &allfds, (fd_set *)0,
                 (fd_set *)0, NULL);
 
+        //연결
         if (FD_ISSET(listen_fd, &allfds))
         {
             addrlen = sizeof(client_addr);
             client_fd = accept(listen_fd,
                     (struct sockaddr *)&client_addr, &addrlen);
 
-            //상규 추가
-            list[clnt_num1] = client_fd;
-            clnt_num1++;
+
 
             FD_SET(client_fd,&readfds);
 
@@ -87,6 +95,10 @@ int main(int argc, char **argv)
                 printf("%c\n", buf);
 
 
+
+                //상규 추가
+                list[clnt_num1] = client_fd;
+                clnt_num1++;
             }
 
             continue;

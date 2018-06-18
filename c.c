@@ -72,7 +72,8 @@ int main (int argc, char* argv[])
 
     if(argc !=4)
     {
-        printf("ERROR : three arguments are needed");
+        printf("ERROR : three arguments are needed\n");
+        printf("IP, PORTNUMBER, NAME\n");
         exit(1);
     }
     servName = argv[1];
