@@ -87,6 +87,8 @@ void Accept(int num){
 
         c_n = accept(listen_s, (struct sockaddr *)&client_addr, &addrlen);
         client_s[num] = c_n;
+
+        login();
         
         accept_id = pthread_create(&client_echo[num], NULL, echo, num);
         pthread_detach(client_echo[num]);
@@ -106,4 +108,72 @@ void to_Create(int listen_s){
 void Delete(int *ar, int idx)
 {
     memmove(ar + idx, ar + idx + 1, strlen(ar) - idx);
+}
+
+
+void login(){
+    while(1){
+      write(client_fd,"ID: ",1024);
+      read(client_fd, buf, MAXLINE-1);
+
+      //id 확인
+      if(!CheckUserId(buf)){
+        //회원 가입 안내 전송
+        write(client_fd,"Sign_Up Please!!",1024);
+
+        //Input_id 호출
+        Input_id();
+
+        //Pwd 입력
+        Input_pwd();
+
+        //Name 입력
+        Input_name();
+
+        UserCount ++;
+        return 0;
+      }
+      //Login pwd 입력문 호출
+      else  {
+        write(client_fd,"pwd: ",1024);
+        read(client_fd, buf, MAXLINE-1);
+
+        //pwd 확인
+        if(!CheckUserPwd(buf)){
+          write(client_fd,"Faile Password!",1024);
+          return 0;
+        }
+        else {
+          UserCount++;
+          break;
+        }
+      }
+    }
+}
+
+/*
+  func : id 입력 후 파일 내에 저장
+*/
+void Input_id(){
+  write(client_fd,"ID : ",1024);
+  read(client_fd, buf, MAXLINE-1);
+  SaveUserID(buf, user[UserCount].id, UserCount);
+}
+
+/*
+  func : pwd 입력 후 파일 내에 저장
+*/
+void Input_pwd(){
+  write(client_fd, "Pwd : ",1024);
+  read(client_fd, buf, MAXLINE-1);
+  SaveUserPwd(buf, user[UserCount].pwd, UserCount);
+}
+
+/*
+  func : name 입력 후 파일 내에 저장
+*/
+void Input_name(){
+  write(client_fd,"Name : ",1024);
+  read(client_fd, buf, MAXLINE-1);
+  SaveUserName(buf, user[UserCount].name, UserCount);
 }
