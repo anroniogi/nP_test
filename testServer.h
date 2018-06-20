@@ -10,6 +10,16 @@ pthread_t accept_f;
 int accept_id;
 pthread_t client_echo[MAX_CLIENT];
 
+pthread_t room1_thread[20];
+pthread_t room2_thread[20];
+pthread_t room3_thread[20];
+
+struct Arg{
+    int room_num;
+    int clit_num;
+};
+
+
 UserData user[10];
 int UserCount = 0;
 
@@ -31,106 +41,14 @@ struct sockaddr_in server_addr, client_addr;
 int room1[MAX_CLIENT/5];
 int room2[MAX_CLIENT/5];
 int room3[MAX_CLIENT/5];
-int room4[MAX_CLIENT/5];
-int room5[MAX_CLIENT/5];
+
 
 int clnt_num1=0;
 int clnt_num2=0;
 int clnt_num3=0;
-int clnt_num4=0;
-int clnt_num5=0;
+
 
 int status = 1;
-
-
-/*
-  func : id 입력 후 파일 내에 저장
-*//*
-void Input_id(int s){
-    int n;
-    bool status=false;
-    while(!status){
-        write(s,"ID : ",1024);
-        n=recv(s, buf, MAXLINE-1, 0);
-        buf[n]='\n';
-        if(*buf != '\0'){
-            SaveUserID(buf, user[UserCount].id, UserCount);
-            status = true;
-        }
-        else
-            write(s, "첫 글자는 공백을 입력할 수 없습니다.", 1024);
-    }
-}
-
-/*
-  func : pwd 입력 후 파일 내에 저장
-*//*
-void Input_pwd(int s){
-    int n;
-  write(s, "Pwd : ",1024);
-  n=recv(s, buf, MAXLINE-1, 0);
-  buf[n]='\n';
-  SaveUserPwd(buf, user[UserCount].pwd, UserCount);
-}
-
-/*
-  func : name 입력 후 파일 내에 저장
-*//*
-void Input_name(int s){
-    int n;
-  write(s,"Name : ",1024);
-  n=recv(s, buf, MAXLINE-1, 0);
-  buf[n]='\n';
-  SaveUserName(buf, user[UserCount].name, UserCount);
-}
-
-
-void login(int s){
-    bool check;
-    char id[15];
-    while(1){
-      while(*id == '\0' || *id == ' '){
-          write(s,"ID: ",1024);
-          recv(s, id, 15, 0);
-      }
-
-
-      //id 확인
-      if(check=!CheckUserId(id)){
-        //회원 가입 안내 전송
-        write(s,"Sign_Up Please!!",1024);
-
-        //Input_id 호출
-        Input_id(s);
-
-        //Pwd 입력
-        Input_pwd(s);
-
-        //Name 입력
-        Input_name(s);
-
-        UserCount ++;
-        return 0;
-      }
-      //Login pwd 입력문 호출
-      else  {
-        write(s,"pwd: ",1024);
-        read(s, buf, MAXLINE-1);
-
-        //pwd 확인
-        if(!CheckUserPwd(buf)){
-          write(s,"Faile Password!",1024);
-          return 0;
-        }
-        else {
-          UserCount++;
-          break;
-        }
-      }
-    }
-}
-
-*/
 
 
 
@@ -158,8 +76,6 @@ void to_Listen(){
         exit(0);
     }
 }
-
-
 
 void echo(int num){
     bool one=true;
@@ -204,17 +120,120 @@ void echo(int num){
     }
 }
 
+void echo1(int num){
+    bool one=true;
+    int n;
+    int join = 0;
+    char name[20];
+    char msg[MAXLINE];
+
+    send(room1[num], "이름을 입력하세요", MAXLINE-1, 0);
+    n=recv(room1[num], name, MAXLINE-1, 0);
+    name[n] = '\0';
+
+
+
+    while(status){
+        if((n=recv(room1[num], buf, MAXLINE-1, 0))==0){
+            printf("client[%d] 접속 종료", num);//채팅방 목록에서도 삭제해야됨
+            status=0;
+        }else if(join == 0){
+            strcat(msg, name);
+            strcat(msg, "님이 입장하셨습니다.");
+
+            for(int i=0; i<20; ++i)
+                send(room1[i], msg, MAXLINE-1, 0);
+
+            msg[0]='\0';
+            join = 1;
+        }
+        else{
+            buf[n]='\0';
+            strcat(msg, name);
+            strcat(msg, " : ");
+            strcat(msg, buf);
+            if(one){
+                for(int i=0; i<20; ++i){
+                    send(room1[i], msg, MAXLINE-1, 0);
+                }
+            }
+            one = !one;
+            msg[0]='\0';
+        }
+    }
+}
+
+int select_room(int s){
+    int num;
+    int check;
+    char buf[100];
+    int status=1;
+    usleep(300);
+    while(status){
+        check = send(s, "*********************************************", MAXLINE-1, 0);
+        sprintf(buf, "채팅방 1 : %d/20 명", clnt_num1);
+        usleep(300);
+        send(s, buf, MAXLINE-1, 0);
+        sprintf(buf, "채팅방 2 : %d/20 명", clnt_num2);
+        usleep(300);
+        send(s, buf, MAXLINE-1, 0);
+        sprintf(buf, "채팅방 3 : %d/20 명", clnt_num3);
+        usleep(300);
+        send(s, buf, MAXLINE-1, 0);
+        usleep(300);
+        send(s, "*********************************************", MAXLINE-1, 0);
+        usleep(300);
+        send(s, "원하는 채팅방 번호를 입력하세요", MAXLINE-1, 0);
+
+        recv(s, buf, MAXLINE-1, 0);
+        num = *buf - '0';
+
+        switch (num) {
+            case 1:
+                //if문으로 20명 넘으면 못들어오게해야됨
+                room1[clnt_num1] = s;
+                accept_id = pthread_create(&room1_thread[clnt_num1], NULL, echo, num);
+                pthread_detach(client_echo[clnt_num1]);
+                clnt_num1++;
+                break;
+            case 2:
+                room2[clnt_num2] = s;
+                accept_id = pthread_create(&room2_thread[clnt_num2], NULL, echo, num);
+                pthread_detach(client_echo[clnt_num2]);
+                clnt_num2++;
+                break;
+            case 3:
+                room1[clnt_num3] = s;
+                accept_id = pthread_create(&room3_thread[clnt_num1], NULL, echo, num);
+                pthread_detach(client_echo[clnt_num3]);
+                clnt_num3++;
+                break;
+            default :
+                send(s, "1-3 사이의 숫자만 입력하세요", MAXLINE-1, 0);
+                break;
+        }
+    }
+}
 
 void Accept(int num){
     int s;
+    int select;
     while(status){
         socklen_t addrlen = sizeof(client_addr);
 
         s = accept(listen_s, (struct sockaddr *)&client_addr, &addrlen);
+        /*
         client_s[num] = s;
-
+        printf("accept !");
+        send(s, "방을 선택하세요", MAXLINE-1, 0);
+        recv(s, buf, MAXLINE-1, 0);
+*/
 //        login(s);
+        //채팅방 선택
+        //select = select_room(s);
+        select_room(s);
 
+        //아마 이거 안쓸듯?
         accept_id = pthread_create(&client_echo[num], NULL, echo, num);
         pthread_detach(client_echo[num]);
 

@@ -70,7 +70,7 @@ void *t_function(void *data){
 }
 
 
-void make_recv_thread(s){
+void make_recv_thread(int s){
     thr_id = pthread_create(&pthread, NULL, t_function, (void *)&s);
     if(thr_id < 0){
         perror("스레드 안생김ㅋ");
