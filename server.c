@@ -34,50 +34,6 @@ int main(int argc, char **argv)
                 maxfd = client_fd;
             printf("Accept OK\n");
 
-            //Login id 입력문 호출
-
-            while(1){
-              write(client_fd,"ID: ",1024);
-              read(client_fd, buf, MAXLINE-1);
-
-              //id 확인
-              if(!CheckUserId(buf)){
-                //회원 가입 안내 전송
-                write(client_fd,"Sign_Up Please!!",1024);
-
-                //Id 입력
-                write(client_fd,"ID : ",1024);
-                read(client_fd, buf, MAXLINE-1);
-                SaveUserID(buf, user[UserCount].id, UserCount);
-                //Pwd 입력
-                write(client_fd, "Pwd : ",1024);
-                read(client_fd, buf, MAXLINE-1);
-                SaveUserPwd(buf, user[UserCount].pwd, UserCount);
-                //Name 입력
-                write(client_fd,"Name : ",1024);
-                read(client_fd, buf, MAXLINE-1);
-                SaveUserName(buf, user[UserCount].name, UserCount);
-
-                UserCount ++;
-                return 0;
-              }
-              //Login pwd 입력문 호출
-              else  {
-                write(client_fd,"pwd: ",1024);
-                read(client_fd, buf, MAXLINE-1);
-
-                //pwd 확인
-                if(!CheckUserPwd(buf)){
-                  write(client_fd,"Faile Password!",1024);
-                  return 0;
-                }
-                else {
-                  UserCount++;
-                  break;
-                }
-              }
-            }
-
             //채팅방 선택
             {
                 write(client_fd, "choice_chatting_room_number", 1024);

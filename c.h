@@ -68,20 +68,6 @@ void *t_function(void *data){
     }
 }
 
-void choice_room(int s){
-    int n;
-    char buffer_rcv[SIZE];
-    char* ptr_rcv = buffer_rcv;
-
-    printf("입장할 채팅방을 선택하세요\n");
-
-    n = recv(s, ptr_rcv, SIZE, 0);
-    buffer_rcv[n] = '\0';
-
-    printf("%s\n", buffer_rcv);
-
-
-}
 
 void make_recv_thread(s){
     thr_id = pthread_create(&pthread, NULL, t_function, (void *)&s);

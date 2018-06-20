@@ -26,7 +26,7 @@ typedef struct {
     char name[LENGTH];
     char id[LENGTH];
     char pwd[LENGTH];
-}UserData;
+} UserData;
 
 /*
     func : UserQueue 선언
@@ -99,8 +99,11 @@ UserData peek(uQueueType *uQ) {
 bool CheckUserId (char buffer[LENGTH]) {
   int i = 0;
   FILE *fp;
+  UserData u[10];
   fp = fopen("user.txt", "r");
-  UserData u[i];
+  //UserData u[i];
+if(fp == NULL)
+  return false;
 
   for(; i<10; i++){
     fread(&u[i], sizeof(UserData), 1, fp);
@@ -120,7 +123,8 @@ bool CheckUserPwd (char buffer[LENGTH]) {
   int i = 0;
   FILE *fp;
   fp = fopen("user.txt", "r");
-  UserData u[i];
+  //UserData u[i];
+  UserData u[10];
 
   for(; i<10; i++){
     fread(&u[i], sizeof(UserData), 1, fp);
