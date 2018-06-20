@@ -1,138 +1,34 @@
 // TCP echo client
 #include "headerFiles.h"
-
-#define SIZE 1024
-
-void *t_function(void *data){
-    int n;
-    int s = *((int *)data);
-    char buffer_rcv[SIZE];
-    char* ptr_rcv = buffer_rcv;
-
-    while(1){
-         n = recv(s, ptr_rcv, SIZE, 0);
-         buffer_rcv[n] = '\0';
-         buffer_rcv[n+1] = '\n';
-         printf("\n%s \n", ptr_rcv);
-         printf("보낼 문자열을 입력하세요 :");
-    }
-
-}
-
-void choice_room(int s){
-    int n;
-    char buffer_rcv[SIZE];
-    char* ptr_rcv = buffer_rcv;
-
-    printf("입장할 채팅방을 선택하세요\n")
-
-    n = recv(s, ptr_rcv, SIZE, 0);
-    buffer_rcv[n] = '\0';
-
-    printf("%s\n", buffer_rcv);
+#include "c.h"
 
 
-}
-
-char* concat(const char *s1, const char *s2)
-{
-    const size_t len1 = strlen(s1);
-    const size_t len2 = strlen(s2);
-    char *result = (char*)malloc(len1 + len2 + 1);//+1 for the zero-terminator
-                                           //in real code you would check for errors in malloc here
-    memcpy(result, s1, len1);
-    memcpy(result + len1, s2, len2 + 1);//+1 to copy the null-terminator
-    return result;
-}
-
-int main (int argc, char* argv[])
-{
-    //
-    int s;
-    int n;
-    char* servName;
-    int servPort;
-    char* string;
-    int len;
-    int maxLen;
-    int test;
-    char buffer[SIZE];
-    char* ptr = buffer;
-    char buffer_rcv[SIZE];
-    char* ptr_rcv = buffer_rcv;
-    char* msg;
-
-    struct sockaddr_in servAddr;
-
-    //상규 추가
-    pthread_t pthread;
-    int thr_id;
-    int status;
+int main (int argc, char* argv[]){
 
 
-    if(argc !=4)
-    {
-        printf("ERROR : three arguments are needed\n");
-        printf("IP, PORTNUMBER, NAME\n");
-        exit(1);
-    }
-    servName = argv[1];
-    servPort = atoi(argv[2]);
-    string = argv[3];
-
+    /********************************
     string = concat(string, " : ");
+    보낼 메세지에 사용자 이름 추가해서 보내야됨
+    ********************************/
 
-    //
-    memset(&servAddr, 0, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;
-    inet_pton(AF_INET, servName, &servAddr.sin_addr);
-    servAddr.sin_port = htons(servPort);
-    s = socket(PF_INET, SOCK_STREAM, 0);
-    if(s < 0)
-    {
-        perror("ERROR : socket creation failed");
-        exit(1);
-    }
-    //
-    if(connect(s, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0)
-    {
-        perror("ERROR : connection failed");
-        exit(1);
-    }
+    // login 추가해야함
+    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    //서버로 connect 요구 전송
+    connect_to_server();
 
     //채팅방 선택
-    choice_room(s);
+    //choice_room(s);
 
 
-    //상규 추가
-    thr_id = pthread_create(&pthread, NULL, t_function, (void *)&s);
-    if(thr_id < 0){
-        perror("스레드 안생김ㅋ");
-        exit(0);
-    }
+    //상규 송신대기 스레드 생성
+    make_recv_thread(s);
     pthread_detach(pthread);
-    printf("보낼 문자열을 입력하세요 : ");
 
-    while(1){
-//        printf("보낼 문자열을 입력하세요 : ");
-        gets(buffer);
-        if(strcmp(ptr, "quit")==0)
-            break;
-
-        msg = concat(string, ptr);
-
-        test = send(s, msg, SIZE, 0);
-        printf("보낼 문자열을 입력하세요 : ");
-//        n = recv(s, ptr_rcv, SIZE, 0);
-//        printf("\nEchoed string received: ");
-//        fputs(buffer_rcv, stdout);
-//        printf("\n");
-//        ptr_rcv = buffer_rcv[0];
+    while(status){
+        send_func(s);
     }
 
-//
-    //printf("\n");
     close(s);
-    //
     exit(0);
 }
