@@ -2,7 +2,7 @@
 
 int s;
 int n;
-char* servName = "210.115.43.150";
+char* servName = "127.0.0.1";
 int servPort = 50000;
 char* string;
 int len;

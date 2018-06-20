@@ -18,7 +18,7 @@ int main (int argc, char* argv[]){
     connect_to_server();
 
     //채팅방 선택
-    //choice_room(s);
+  //  choice_room(s);
 
 
     //상규 송신대기 스레드 생성
