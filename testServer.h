@@ -37,6 +37,8 @@ int clnt_num3=0;
 int clnt_num4=0;
 int clnt_num5=0;
 
+int status = 1;
+
 
 void to_Listen(){
 
@@ -66,7 +68,7 @@ void to_Listen(){
 
 
 void echo(int num){
-    while(1){
+    while(status){
         int n;
         if((n=recv(client_s[num], buf, MAXLINE-1, 0))==0){
             printf("client[%d] 접속 종료", num);//채팅방 목록에서도 삭제해야됨
@@ -82,12 +84,12 @@ void echo(int num){
 
 void Accept(int num){
     int c_n;
-    while(1){
+    while(status){
         socklen_t addrlen = sizeof(client_addr);
 
         c_n = accept(listen_s, (struct sockaddr *)&client_addr, &addrlen);
         client_s[num] = c_n;
-        
+
         accept_id = pthread_create(&client_echo[num], NULL, echo, num);
         pthread_detach(client_echo[num]);
 

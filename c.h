@@ -60,7 +60,7 @@ void *t_function(void *data){
     char buffer_rcv[SIZE];
     char* ptr_rcv = buffer_rcv;
 
-    while(1){
+    while(status){
          n = recv(s, ptr_rcv, SIZE, 0);
          buffer_rcv[n] = '\0';
          buffer_rcv[n+1] = '\n';
