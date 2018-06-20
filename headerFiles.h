@@ -32,6 +32,7 @@ typedef struct {
     func : UserQueue 선언
     todo : socketdescriptor 확인 및 test
 */
+/*
 typedef struct {
 	UserData uqueue[uQ_SIZE];
 	int ufront, urear;
@@ -95,7 +96,7 @@ UserData peek(uQueueType *uQ) {
   func : client가 입력한 id 와 파일내 id Check
   todo : test
 */
-
+/*
 bool CheckUserId (char buffer[LENGTH]) {
   int i = 0;
   FILE *fp;
@@ -118,7 +119,7 @@ if(fp == NULL)
 /*
   func : client가 입력한 pwd 와 파일내 pwd Check
   todo : test
-*/
+*//*
 bool CheckUserPwd (char buffer[LENGTH]) {
   int i = 0;
   FILE *fp;
@@ -138,7 +139,7 @@ bool CheckUserPwd (char buffer[LENGTH]) {
 
 /*
 
-*/
+*//*
 void SaveUserID (char buffer[LENGTH], UserData* u, int i){
   FILE *fp;
   fp = fopen("user.txt","w");
@@ -159,3 +160,4 @@ void SaveUserName (char buffer[LENGTH], UserData* u, int i){
   fwrite(&u[i].name, sizeof(u[i].name), 1, fp);
   fclose(fp);
 }
+*/

@@ -65,6 +65,7 @@ void *t_function(void *data){
          buffer_rcv[n] = '\0';
          //buffer_rcv[n+1] = '\n';
          printf("%s\n", ptr_rcv);
+         buffer_rcv[0]='\0';
     }
 }
 

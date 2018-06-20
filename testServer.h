@@ -43,6 +43,48 @@ int clnt_num5=0;
 int status = 1;
 
 
+/*
+  func : id 입력 후 파일 내에 저장
+*//*
+void Input_id(int s){
+    int n;
+    bool status=false;
+    while(!status){
+        write(s,"ID : ",1024);
+        n=recv(s, buf, MAXLINE-1, 0);
+        buf[n]='\n';
+        if(*buf != '\0'){
+            SaveUserID(buf, user[UserCount].id, UserCount);
+            status = true;
+        }
+        else
+            write(s, "첫 글자는 공백을 입력할 수 없습니다.", 1024);
+    }
+}
+
+/*
+  func : pwd 입력 후 파일 내에 저장
+*//*
+void Input_pwd(int s){
+    int n;
+  write(s, "Pwd : ",1024);
+  n=recv(s, buf, MAXLINE-1, 0);
+  buf[n]='\n';
+  SaveUserPwd(buf, user[UserCount].pwd, UserCount);
+}
+
+/*
+  func : name 입력 후 파일 내에 저장
+*//*
+void Input_name(int s){
+    int n;
+  write(s,"Name : ",1024);
+  n=recv(s, buf, MAXLINE-1, 0);
+  buf[n]='\n';
+  SaveUserName(buf, user[UserCount].name, UserCount);
+}
+
+
 void login(int s){
     bool check;
     char id[15];
@@ -88,47 +130,7 @@ void login(int s){
     }
 }
 
-/*
-  func : id 입력 후 파일 내에 저장
 */
-void Input_id(int s){
-    int n;
-    bool status=false;
-    while(!status){
-        write(s,"ID : ",1024);
-        n=recv(s, buf, MAXLINE-1, 0);
-        buf[n]='\n';
-        if(*buf != '\0'){
-            SaveUserID(buf, user[UserCount].id, UserCount);
-            status = true;
-        }
-        else
-            write(s, "첫 글자는 공백을 입력할 수 없습니다.", 1024);
-    }
-}
-
-/*
-  func : pwd 입력 후 파일 내에 저장
-*/
-void Input_pwd(int s){
-    int n;
-  write(s, "Pwd : ",1024);
-  n=recv(s, buf, MAXLINE-1, 0);
-  buf[n]='\n';
-  SaveUserPwd(buf, user[UserCount].pwd, UserCount);
-}
-
-/*
-  func : name 입력 후 파일 내에 저장
-*/
-void Input_name(int s){
-    int n;
-  write(s,"Name : ",1024);
-  n=recv(s, buf, MAXLINE-1, 0);
-  buf[n]='\n';
-  SaveUserName(buf, user[UserCount].name, UserCount);
-}
-
 
 
 
@@ -142,37 +144,66 @@ void to_Listen(){
     if((listen_s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         perror("socket error");
-        return 1;
+        exit(0);
     }
 
     if(bind(listen_s, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
     {
         perror("bind error");
-        return 1;
+        exit(0);
     }
     if(listen(listen_s, 5) == -1)
     {
         perror("listen error");
-        return 1;
+        exit(0);
     }
 }
 
 
 
 void echo(int num){
+    bool one=true;
+    int n;
+    int join = 0;
+    char name[20];
+    char msg[MAXLINE];
+
+    send(client_s[num], "이름을 입력하세요", MAXLINE-1, 0);
+    n=recv(client_s[num], name, MAXLINE-1, 0);
+    name[n] = '\0';
+
+
+
     while(status){
-        int n;
         if((n=recv(client_s[num], buf, MAXLINE-1, 0))==0){
             printf("client[%d] 접속 종료", num);//채팅방 목록에서도 삭제해야됨
+            status=0;
+        }else if(join == 0){
+            strcat(msg, name);
+            strcat(msg, "님이 입장하셨습니다.");
+
+            for(int i=0; i<100; ++i)
+                send(client_s[i], msg, MAXLINE-1, 0);
+
+            msg[0]='\0';
+            join = 1;
         }
         else{
             buf[n]='\0';
-            for(int i=0; i<100; ++i){
-                send(client_s[i], buf, MAXLINE-1, 0);
-        }
+            strcat(msg, name);
+            strcat(msg, " : ");
+            strcat(msg, buf);
+            if(one){
+                for(int i=0; i<100; ++i){
+                    send(client_s[i], msg, MAXLINE-1, 0);
+                }
+            }
+            one = !one;
+            msg[0]='\0';
         }
     }
 }
+
 
 void Accept(int num){
     int s;
@@ -182,7 +213,7 @@ void Accept(int num){
         s = accept(listen_s, (struct sockaddr *)&client_addr, &addrlen);
         client_s[num] = s;
 
-        login(s);
+//        login(s);
 
         accept_id = pthread_create(&client_echo[num], NULL, echo, num);
         pthread_detach(client_echo[num]);
