@@ -63,8 +63,8 @@ void *t_function(void *data){
     while(status){
          n = recv(s, ptr_rcv, SIZE, 0);
          buffer_rcv[n] = '\0';
-         buffer_rcv[n+1] = '\n';
-         printf("\n%s \n", ptr_rcv);
+         //buffer_rcv[n+1] = '\n';
+         printf("%s\n", ptr_rcv);
     }
 }
 
@@ -92,7 +92,6 @@ void make_recv_thread(s){
 }
 
 void send_func(int s){
-        printf("보낼 문자열을 입력하세요 : ");
         gets(buffer);
         if(strcmp(ptr, "quit")==0)
             status=0;
